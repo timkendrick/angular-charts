@@ -8,6 +8,24 @@
 		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.js"></script>
 		<script src="../dist/js/angular-charts.js"></script>
 	</head>
-	<body>
+	<body ng-app>
+		<div class="bar-chart" ng-controller="BarChartCtrl" style="width: 600px; margin: auto;">
+			<form role="form" class="bar-chart--data">
+  				<div class="form-group">
+    				<label for="filter">Filter browsers</label>
+					<input type="search" class="form-control" id="filter" ng-model="filter" placeholder="Filter by name"/>
+				</div>
+				<table class="table table-bordered table-striped table-hover" title="Usage share of browsers, June 2013 (source: statcounter.com)">
+					<tr>
+						<th>Browser</th>
+						<th>Usage</th>
+					</tr>
+					<tr ng-repeat="value in values | filter:filter">
+						<td>{{ value.name }}</td>
+						<td>{{ value.value }}%</td>
+					</tr>
+				</table>
+			</form>
+		</div>
 	</body>
 </html>
