@@ -37,7 +37,7 @@ module.exports = function(grunt) {
 
 		uglify: {
 			options: {
-				banner: '/*! <%= pkg.title %> <%= pkg.version %> (built on <%= grunt.template.today() %>) */'
+				banner: '/*! <%= pkg.title %> <%= pkg.version %> (built on <%= grunt.template.today() %>) */\n'
 			},
 			dist: {
 				src: ['<%= concat.dist.dest %>'],
