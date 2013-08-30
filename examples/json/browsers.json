@@ -1,0 +1,26 @@
+[
+	{
+		"name": "Chrome",
+		"value": 42.68
+	},
+	{
+		"name": "Internet Explorer",
+		"value": 25.44
+	},
+	{
+		"name": "Firefox",
+		"value": 20.01
+	},
+	{
+		"name": "Safari",
+		"value": 8.39
+	},
+	{
+		"name": "Opera",
+		"value": 1.03
+	},
+	{
+		"name": "Other",
+		"value": 2.44
+	}
+]

@@ -1,34 +1,18 @@
 (function(window) {
 	'use strict';
 
-	function BarChartCtrl($scope) {
+	BarChartCtrl.$inject = [
+		'$scope',
+		'$http'
+	];
+	function BarChartCtrl(
+		$scope,
+		$http
+	) {
 		$scope.sort = '';
-		$scope.values = [
-			{
-				name: 'Chrome',
-				value: 42.68
-			},
-			{
-				name: 'Internet Explorer',
-				value: 25.44
-			},
-			{
-				name: 'Firefox',
-				value: 20.01
-			},
-			{
-				name: 'Safari',
-				value: 8.39
-			},
-			{
-				name: 'Opera',
-				value: 1.03
-			},
-			{
-				name: 'Other',
-				value: 2.44
-			}
-		];
+		$http.get('json/browsers.json').success(function(data) {
+			$scope.values = data;
+		});
 	}
 
 	window.BarChartCtrl = BarChartCtrl;
