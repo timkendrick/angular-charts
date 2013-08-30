@@ -2,6 +2,7 @@
 	'use strict';
 
 	function BarChartCtrl($scope) {
+		$scope.sort = '';
 		$scope.values = [
 			{
 				name: 'Chrome',
