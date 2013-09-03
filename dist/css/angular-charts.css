@@ -71,3 +71,23 @@
 .line-chart--chart svg {
   display: block;
 }
+
+/* line 2, ../../src/components/pie-chart/pie-chart.scss */
+.pie-chart .chart--title {
+  display: none;
+}
+
+/* line 7, ../../src/components/pie-chart/pie-chart.scss */
+.pie-chart--title {
+  text-align: center;
+}
+
+/* line 11, ../../src/components/pie-chart/pie-chart.scss */
+.pie-chart--chart {
+  margin: 10px 0;
+}
+
+/* line 15, ../../src/components/pie-chart/pie-chart.scss */
+.pie-chart--chart svg {
+  display: block;
+}

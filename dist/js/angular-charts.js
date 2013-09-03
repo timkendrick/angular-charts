@@ -43,7 +43,8 @@
 
 			'chart',
 			'barchart',
-			'linechart'
+			'linechart',
+			'piechart'
 		]
 	);
 
@@ -326,6 +327,105 @@
 		.directive('linechart', LineChartDirective);
 
 })(angular);
+;(function(angular) {
+	'use strict';
+
+	PieChartCtrl.$inject = [
+		'$scope'
+	];
+	function PieChartCtrl(
+		$scope
+	) {
+		if (!('title' in $scope)) { $scope.title = ''; }
+		if (!('isEditable' in $scope)) { $scope.isEditable = false; }
+		if (!('primaryColumnName' in $scope)) { $scope.primaryColumnName = ''; }
+		if (!('columnNames' in $scope)) { $scope.columnNames = []; }
+		if (!('data' in $scope)) { $scope.data = []; }
+
+		if (!('hasData' in $scope)) { $scope.hasData = false; }
+		if (!('width' in $scope)) { $scope.width = 100; }
+		if (!('height' in $scope)) { $scope.height = 100; }
+		if (!('colors' in $scope)) { $scope.colors = []; }
+
+		$scope.getSegmentPath = function(columnIndex, cellIndex) {
+			var series = $scope.data[columnIndex];
+			var value = series.values[cellIndex];
+			var totalValue = $scope.getTotalValue();
+			var startRatio = $scope.sum(series.values, cellIndex) / totalValue;
+			for (var i = 0, l = columnIndex; i < l; i++) { startRatio += ($scope.sum($scope.data[i].values) / totalValue); }
+			var sizeRatio = value.number / $scope.getTotalValue();
+			var radius = Math.min($scope.width, $scope.height) / 2;
+			var path = $scope.getArcPath(startRatio, sizeRatio, radius);
+
+			return path;
+		};
+
+		$scope.getArcPath = function(startRatio, sizeRatio, radius) {
+			startRatio = Number(startRatio);
+			sizeRatio = Number(sizeRatio);
+			radius = Number(radius);
+			var startCoordinates = $scope.polarToCartesian(startRatio * (2 * Math.PI), radius);
+			var endCoordinates = $scope.polarToCartesian((startRatio + sizeRatio) * (2 * Math.PI), radius);
+			return 'M 0 0 L ' + startCoordinates[0] + ' ' + startCoordinates[1] + ' A ' + radius + ' ' + radius + ' 0 ' + (sizeRatio > 0.5 ? '1' : '0') + ' 1 ' + endCoordinates[0] + ' ' + endCoordinates[1] + ' z';
+		};
+
+		$scope.polarToCartesian = function(angle, radius) {
+			var x = radius * Math.sin(angle);
+			var y = -radius * Math.cos(angle);
+			return [x, y];
+		};
+
+		$scope.getTotalValue = function() {
+			return $scope.data.reduce(function(sum, series) {
+				return sum + series.values.reduce(function(sum, value) { return sum + value.number; }, 0);
+			}, 0);
+		};
+
+		$scope.sum = function(array, limit) {
+			if (!limit && (limit !== 0)) { limit = array.length; }
+			limit = Math.max(0, Math.min(array.length, limit));
+			var sum = 0;
+			for (var i = 0; i < limit; i++) { sum += array[i].number; }
+			return sum;
+		};
+	}
+
+	PieChartDirective.$inject = [
+		'ChartDataService'
+	];
+	function PieChartDirective(
+		ChartDataService
+	) {
+		return {
+			restrict: 'E',
+			templateUrl: 'components/pie-chart/pie-chart.html',
+			replace: true,
+			transclude: true,
+			scope: true,
+			controller: PieChartCtrl,
+			compile: function(element, attributes, transclude) {
+				return function(scope) {
+					transclude(scope, function(clone) {
+						if ('title' in attributes) { scope.title = attributes.title; }
+						if ('editable' in attributes) { scope.isEditable = (attributes.editable === 'true'); }
+						if ('data' in attributes) { scope.hasData = (attributes.data === 'true'); }
+						if ('width' in attributes) { scope.width = attributes.width; }
+						if ('height' in attributes) { scope.height = attributes.height; }
+						if ('colors' in attributes) { scope.colors = attributes.colors.split(','); }
+
+						var chartData = ChartDataService.parse(clone);
+						for (var property in chartData) { scope[property] = chartData[property]; }
+					});
+				};
+			}
+		};
+	}
+
+	angular.module('piechart', ['chart'])
+		.controller('PieChartCtrl', PieChartCtrl)
+		.directive('piechart', PieChartDirective);
+
+})(angular);
 ;angular.module("charts").run(["$templateCache", function($templateCache) {
 
   $templateCache.put("components/bar-chart/bar-chart.html",
@@ -397,7 +497,7 @@
     "\t\t\t</style>\n" +
     "\t\t\t<g class=\"data\" transform=\"scale(1, -1) translate(0, -{{ height }})\">\n" +
     "\t\t\t\t<mask id=\"mask\">\n" +
-    "\t\t\t\t\t<rect width=\"{{ width }}\" height=\"{{ height }}\" fill=\"white\">\n" +
+    "\t\t\t\t\t<rect ng-attr-width=\"{{ width }}\" ng-attr-height=\"{{ height }}\" fill=\"white\">\n" +
     "\t\t\t\t\t\t<animate attributeName=\"width\" from=\"0\" to=\"{{ width }}\" dur=\"1s\"/>\n" +
     "\t\t\t\t\t</rect>\n" +
     "\t\t\t\t</mask>\n" +
@@ -420,6 +520,34 @@
     "\t</div>\n" +
     "\t<h3 class=\"line-chart--title\">{{ title }}</h3>\n" +
     "\t<div class=\"line-chart--data\" ng-show=\"hasData\">\n" +
+    "\t\t<chart/>\n" +
+    "\t</div>\n" +
+    "</div>\n"
+  );
+
+  $templateCache.put("components/pie-chart/pie-chart.html",
+    "<div class=\"pie-chart\">\n" +
+    "\t<div class=\"pie-chart--chart\">\n" +
+    "\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" ng-attr-width=\"{{ width }}\" ng-attr-height=\"{{ height }}\">\n" +
+    "\t\t\t<style>\n" +
+    "\t\t\t\t.segment:hover {\n" +
+    "\t\t\t\t\topacity: 0.8;\n" +
+    "\t\t\t\t\tcursor: pointer;\n" +
+    "\t\t\t\t}\n" +
+    "\t\t\t</style>\n" +
+    "\t\t\t<g class=\"data\" transform=\"translate({{ width / 2 }}, {{ height / 2 }})\">\n" +
+    "\t\t\t\t<g ng-repeat=\"series in data\" class=\"segment\">\n" +
+    "\t\t\t\t\t<path ng-repeat=\"value in series.values\" ng-attr-d=\"{{ getSegmentPath($parent.$index, $index) }}\" fill=\"{{ colors[$parent.$index] }}\">\n" +
+    "\t\t\t\t\t\t<title>{{ series.name }} - {{ columnNames[$index] }}: {{ value.number }}</title>\n" +
+    "\t\t\t\t\t</path>\n" +
+    "\t\t\t\t\t<animateTransform attributeType=\"XML\" attributeName=\"transform\" type=\"scale\" from=\"0\" to=\"0\" dur=\"{{ ($index + 1) / data.length * 350 }}ms\"/>\n" +
+    "\t\t\t\t\t<animateTransform attributeType=\"XML\" attributeName=\"transform\" type=\"scale\" from=\"0\" to=\"1\" begin=\"{{ ($index + 1) / data.length * 350 }}ms\" dur=\"400ms\" fill=\"freeze\"/>\n" +
+    "\t\t\t\t</g>\n" +
+    "\t\t\t</g>\n" +
+    "\t\t</svg>\n" +
+    "\t</div>\n" +
+    "\t<h3 class=\"pie-chart--title\">{{ title }}</h3>\n" +
+    "\t<div class=\"pie-chart--data\" ng-show=\"hasData\">\n" +
     "\t\t<chart/>\n" +
     "\t</div>\n" +
     "</div>\n"
