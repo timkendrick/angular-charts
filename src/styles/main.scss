@@ -1,6 +1,6 @@
 @import "mixins/prefixr";
 
 @import "base";
-@import "common";
 
-@import "charts/bar-chart";
+@import "../components/chart/chart";
+@import "../components/bar-chart/bar-chart";

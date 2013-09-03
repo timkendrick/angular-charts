@@ -21,7 +21,7 @@ Minified and unminified versions are included to allow both production and debug
 
 To use Angular Charts in your own project, you will need to include the following scripts in your HTML source:
 
-1. [AngularJS](http://angularjs.org/)
+1. [AngularJS](http://angularjs.org/) (v1.2 or higher)
 2. `angular-charts.min.js` or `angular-charts.js` (from the `dist/js` directory of the repository)
 3. `angular-charts.min.css` or `angular-charts.css` (from the `dist/css` directory of the repository)
 

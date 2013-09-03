@@ -1,20 +1,16 @@
-(function(window) {
+(function(angular) {
 	'use strict';
 
-	BarChartCtrl.$inject = [
-		'$scope',
-		'$http'
-	];
-	function BarChartCtrl(
-		$scope,
-		$http
-	) {
-		$scope.sort = '';
-		$http.get('json/browsers.json').success(function(data) {
-			$scope.values = data;
-		});
-	}
+	angular.module('charts',
+		[
+			'chartsFilters',
+			'chartsDirectives',
+			'chartsControllers',
+			'chartsServices',
 
-	window.BarChartCtrl = BarChartCtrl;
+			'chart',
+			'barchart'
+		]
+	);
 
-})(window);
+})(angular);

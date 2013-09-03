@@ -1,0 +1,22 @@
+.chart--title {
+	text-align: center;
+}
+
+.chart--instructions {
+	text-align: center;
+}
+
+.chart--table--cell--input {
+	display: none;
+	width: 100%;
+}
+
+.chart--table--cell[data-editable] {
+	.chart--table--cell--value {
+		display: none;
+	}
+
+	.chart--table--cell--input {
+		display: block;
+	}
+}

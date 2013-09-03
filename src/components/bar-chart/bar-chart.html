@@ -1,0 +1,25 @@
+<div class="bar-chart">
+	<div class="bar-chart--chart" style="padding-top: 50%;">
+		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 1 1">
+			<style>
+				.bar:hover {
+					opacity: 0.8;
+					cursor: pointer;
+				}
+			</style>
+			<g transform="scale(1, -1) translate(0, -1)">
+				<g ng-repeat="series in data" class="bar">
+					<title>{{ series.name }}: {{ sum(series.values) }}</title>
+					<rect ng-repeat="value in series.values" ng-attr-x="{{ ($parent.$index + 0.125) / data.length }}" ng-attr-y="{{ sum(series.values, $index) / getMaxValue() }}" ng-attr-width="{{ 0.75 / data.length }}" ng-attr-height="{{ value.number / getMaxValue() }}" fill="{{ colors[$index] }}">
+						<animateTransform attributeName="transform" attributeType="XML" type="scale" from="0" to="0" dur="{{ $parent.$index * 100 }}ms" fill="freeze"/>
+						<animateTransform attributeName="transform" attributeType="XML" type="scale" from="1,0" to="1,1" begin="{{ $parent.$index * 100 }}ms" dur="300ms" fill="freeze"/>
+					</rect>
+				</g>
+			</g>
+		</svg>
+	</div>
+	<h3 class="bar-chart--title">{{ title }}</h3>
+	<div class="bar-chart--data" ng-show="hasData">
+		<chart/>
+	</div>
+</div>
