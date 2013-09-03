@@ -44,6 +44,7 @@
 			templateUrl: 'components/bar-chart/bar-chart.html',
 			replace: true,
 			transclude: true,
+			scope: true,
 			controller: BarChartCtrl,
 			compile: function(element, attributes, transclude) {
 				return function(scope) {
