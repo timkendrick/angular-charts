@@ -9,7 +9,8 @@
 			'chartsServices',
 
 			'chart',
-			'barchart'
+			'barchart',
+			'linechart'
 		]
 	);
 
