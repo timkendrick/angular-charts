@@ -1,0 +1,25 @@
+<div class="pie-chart">
+	<div class="pie-chart--chart">
+		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" ng-attr-width="{{ width }}" ng-attr-height="{{ height }}">
+			<style>
+				.segment:hover {
+					opacity: 0.8;
+					cursor: pointer;
+				}
+			</style>
+			<g class="data" transform="translate({{ width / 2 }}, {{ height / 2 }})">
+				<g ng-repeat="series in data" class="segment">
+					<path ng-repeat="value in series.values" ng-attr-d="{{ getSegmentPath($parent.$index, $index) }}" fill="{{ colors[$parent.$index] }}">
+						<title>{{ series.name }} - {{ columnNames[$index] }}: {{ value.number }}</title>
+					</path>
+					<animateTransform attributeType="XML" attributeName="transform" type="scale" from="0" to="0" dur="{{ ($index + 1) / data.length * 350 }}ms"/>
+					<animateTransform attributeType="XML" attributeName="transform" type="scale" from="0" to="1" begin="{{ ($index + 1) / data.length * 350 }}ms" dur="400ms" fill="freeze"/>
+				</g>
+			</g>
+		</svg>
+	</div>
+	<h3 class="pie-chart--title">{{ title }}</h3>
+	<div class="pie-chart--data" ng-show="hasData">
+		<chart/>
+	</div>
+</div>

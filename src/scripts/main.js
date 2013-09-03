@@ -10,7 +10,8 @@
 
 			'chart',
 			'barchart',
-			'linechart'
+			'linechart',
+			'piechart'
 		]
 	);
 
