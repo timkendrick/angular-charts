@@ -1,0 +1,18 @@
+<div class="chart">
+	<h3 class="chart--title">{{ title }}</h3>
+	<h6 ng-show="{{ isEditable }}" class="chart--instructions">Double-click table cells to edit values</h6>
+	<table class="chart--table table table-bordered table-striped table-hover">
+		<thead>
+			<tr>
+				<th>{{ primaryColumnName }}</th>
+				<th ng-repeat="columnName in columnNames">{{ columnName }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="series in data | filter:filter">
+				<th>{{ series.name }}</th>
+				<td ng-repeat="value in series.values" class="chart--table--cell" ng-dblclick="_handleCellDblClicked($event)"><div class="chart--table--cell--value">{{ value.number }}</div><input type="number" ng-model="value.number" ng-model-onblur class="chart--table--cell--input"/></td>
+			</tr>
+		</tbody>
+	</table>
+</div>

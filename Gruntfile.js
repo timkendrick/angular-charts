@@ -14,12 +14,34 @@ module.exports = function(grunt) {
 			}
 		},
 
+		clean: {
+			dist: {
+				src: ['dist']
+			},
+			temp: {
+				src: ['.temp']
+			}
+		},
+
+		ngtemplates: {
+			dist: {
+				options: {
+					base: 'src/components',
+					prepend: 'components/',
+					module: 'charts',
+					concat: 'dist'
+				},
+				src: ['src/components/**/*.html'],
+				dest: '.temp/templates.js'
+			}
+		},
+
 		concat: {
 			options: {
 				separator: ';'
 			},
 			dist: {
-				src: ['src/scripts/**/*.js'],
+				src: ['src/scripts/**/*.js', 'src/components/**/*.js'],
 				dest: 'dist/js/<%= pkg.name %>.js'
 			}
 		},
@@ -57,15 +79,19 @@ module.exports = function(grunt) {
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks('grunt-angular-templates');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
+	grunt.loadNpmTasks('grunt-contrib-copy');
 
-	grunt.registerTask('compile', ['jshint', 'concat', 'sass']);
+	grunt.registerTask('test', ['jshint']);
+	grunt.registerTask('compile', ['clean', 'ngtemplates', 'concat', 'sass', 'clean:temp']);
 	grunt.registerTask('minify', ['uglify', 'cssmin']);
 
-	grunt.registerTask('build', ['compile', 'minify']);
+	grunt.registerTask('build', ['test', 'compile', 'minify']);
 
 	grunt.registerTask('default', 'build');
 };

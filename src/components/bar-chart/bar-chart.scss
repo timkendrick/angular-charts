@@ -1,0 +1,17 @@
+.bar-chart {
+	.chart--title {
+		display: none;
+	}
+}
+
+.bar-chart--title {
+	text-align: center;
+}
+
+.bar-chart--chart {
+	margin: 10px 0;
+}
+
+.bar-chart--chart svg {
+	display: block;
+}

@@ -1,0 +1,17 @@
+.pie-chart {
+	.chart--title {
+		display: none;
+	}
+}
+
+.pie-chart--title {
+	text-align: center;
+}
+
+.pie-chart--chart {
+	margin: 10px 0;
+}
+
+.pie-chart--chart svg {
+	display: block;
+}

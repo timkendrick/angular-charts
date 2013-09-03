@@ -1,0 +1,41 @@
+<div class="line-chart">
+	<div class="line-chart--chart">
+		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" ng-attr-width="{{ width }}" ng-attr-height="{{ height }}">
+			<style>
+				.line:hover {
+					opacity: 0.8;
+					cursor: pointer;
+				}
+				.point:hover {
+					opacity: 0.8;
+					cursor: pointer;
+				}
+			</style>
+			<g class="data" transform="scale(1, -1) translate(0, -{{ height }})">
+				<mask id="mask">
+					<rect ng-attr-width="{{ width }}" ng-attr-height="{{ height }}" fill="white">
+						<animate attributeName="width" from="0" to="{{ width }}" dur="1s"/>
+					</rect>
+				</mask>
+				<g ng-repeat="series in data" class="series">
+					<g class="line" mask="url(#mask)">
+						<line ng-repeat="value in series.values | limitTo:series.values.length - 1" ng-attr-x1="{{ width * ($index + 0.5) / series.values.length }}" ng-attr-y1="{{ (height - 10) * value.number / getMaxValue() }}" ng-attr-x2="{{ width * ($index + 1.5) / series.values.length }}" ng-attr-y2="{{ (height - 10) * series.values[$index + 1].number / getMaxValue() }}" stroke="{{ colors[$parent.$index] }}" stroke-width="4"/>
+						<title>{{ series.name }}</title>
+					</g>
+					<circle ng-repeat="value in series.values" class="point" ng-attr-cx="{{ width * ($index + 0.5) / series.values.length }}" ng-attr-cy="{{ (height - 10) * value.number / getMaxValue() }}" r="4" fill="white" stroke="{{ colors[$parent.$index] }}" stroke-width="3">
+						<animate attributeName="r" from="0" to="4" dur="{{ ($index + 1) / series.values.length * 1000 }}ms"/>
+						<title>{{ series.name }} - {{ columnNames[$index] }}: {{ value.number }}</title>
+					</circle>
+				</g>
+			</g>
+			<g class="axes">
+				<line class="x-axis" x1="0" y1="0" x2="0" ng-attr-y2="{{ height }}" stroke="#666666" stroke-width="1" shape-rendering="crispEdges"/>
+				<line class="y-axis" x1="0" ng-attr-y1="{{ height - 1 }}" ng-attr-x2="{{ width }}" ng-attr-y2="{{ height - 1 }}" stroke="#666666" stroke-width="1" shape-rendering="crispEdges"/>
+			</g>
+		</svg>
+	</div>
+	<h3 class="line-chart--title">{{ title }}</h3>
+	<div class="line-chart--data" ng-show="hasData">
+		<chart/>
+	</div>
+</div>

@@ -1,0 +1,17 @@
+.line-chart {
+	.chart--title {
+		display: none;
+	}
+}
+
+.line-chart--title {
+	text-align: center;
+}
+
+.line-chart--chart {
+	margin: 10px 0;
+}
+
+.line-chart--chart svg {
+	display: block;
+}
