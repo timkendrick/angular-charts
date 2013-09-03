@@ -14,6 +14,8 @@
 		if (!('data' in $scope)) { $scope.data = []; }
 
 		if (!('hasData' in $scope)) { $scope.hasData = false; }
+		if (!('width' in $scope)) { $scope.width = 100; }
+		if (!('height' in $scope)) { $scope.height = 100; }
 		if (!('colors' in $scope)) { $scope.colors = []; }
 
 
@@ -52,6 +54,8 @@
 						if ('title' in attributes) { scope.title = attributes.title; }
 						if ('editable' in attributes) { scope.isEditable = (attributes.editable === 'true'); }
 						if ('data' in attributes) { scope.hasData = (attributes.data === 'true'); }
+						if ('width' in attributes) { scope.width = attributes.width; }
+						if ('height' in attributes) { scope.height = attributes.height; }
 						if ('colors' in attributes) { scope.colors = attributes.colors.split(','); }
 
 						var chartData = ChartDataService.parse(clone);
