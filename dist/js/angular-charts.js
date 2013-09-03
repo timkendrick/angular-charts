@@ -42,7 +42,8 @@
 			'chartsServices',
 
 			'chart',
-			'barchart'
+			'barchart',
+			'linechart'
 		]
 	);
 
@@ -118,6 +119,8 @@
 		if (!('data' in $scope)) { $scope.data = []; }
 
 		if (!('hasData' in $scope)) { $scope.hasData = false; }
+		if (!('width' in $scope)) { $scope.width = 100; }
+		if (!('height' in $scope)) { $scope.height = 100; }
 		if (!('colors' in $scope)) { $scope.colors = []; }
 
 
@@ -148,6 +151,7 @@
 			templateUrl: 'components/bar-chart/bar-chart.html',
 			replace: true,
 			transclude: true,
+			scope: true,
 			controller: BarChartCtrl,
 			compile: function(element, attributes, transclude) {
 				return function(scope) {
@@ -155,6 +159,8 @@
 						if ('title' in attributes) { scope.title = attributes.title; }
 						if ('editable' in attributes) { scope.isEditable = (attributes.editable === 'true'); }
 						if ('data' in attributes) { scope.hasData = (attributes.data === 'true'); }
+						if ('width' in attributes) { scope.width = attributes.width; }
+						if ('height' in attributes) { scope.height = attributes.height; }
 						if ('colors' in attributes) { scope.colors = attributes.colors.split(','); }
 
 						var chartData = ChartDataService.parse(clone);
@@ -227,6 +233,7 @@
 			templateUrl: 'components/chart/chart.html',
 			replace: true,
 			transclude: true,
+			scope: true,
 			controller: ChartCtrl,
 			compile: function(element, attributes, transclude) {
 				return function(scope) {
@@ -246,26 +253,103 @@
 		.controller('ChartCtrl', ChartCtrl)
 		.directive('chart', ChartDirective);
 })(angular);
+;(function(angular) {
+	'use strict';
+
+	LineChartCtrl.$inject = [
+		'$scope'
+	];
+	function LineChartCtrl(
+		$scope
+	) {
+		if (!('title' in $scope)) { $scope.title = ''; }
+		if (!('isEditable' in $scope)) { $scope.isEditable = false; }
+		if (!('primaryColumnName' in $scope)) { $scope.primaryColumnName = ''; }
+		if (!('columnNames' in $scope)) { $scope.columnNames = []; }
+		if (!('data' in $scope)) { $scope.data = []; }
+
+		if (!('hasData' in $scope)) { $scope.hasData = false; }
+		if (!('width' in $scope)) { $scope.width = 100; }
+		if (!('height' in $scope)) { $scope.height = 100; }
+		if (!('colors' in $scope)) { $scope.colors = []; }
+
+
+		$scope.getMaxValue = function() {
+			var values = $scope.data.reduce(function(values, series) {
+				return values.concat(series.values.map(function(value) { return value.number; }));
+			}, []);
+			return Math.max.apply(Math, values);
+		};
+
+		$scope.sum = function(array, limit) {
+			if (!limit && (limit !== 0)) { limit = array.length; }
+			limit = Math.max(0, Math.min(array.length, limit));
+			var sum = 0;
+			for (var i = 0; i < limit; i++) { sum += array[i].number; }
+			return sum;
+		};
+	}
+
+	LineChartDirective.$inject = [
+		'ChartDataService'
+	];
+	function LineChartDirective(
+		ChartDataService
+	) {
+		return {
+			restrict: 'E',
+			templateUrl: 'components/line-chart/line-chart.html',
+			replace: true,
+			transclude: true,
+			scope: true,
+			controller: LineChartCtrl,
+			compile: function(element, attributes, transclude) {
+				return function(scope) {
+					transclude(scope, function(clone) {
+						if ('title' in attributes) { scope.title = attributes.title; }
+						if ('editable' in attributes) { scope.isEditable = (attributes.editable === 'true'); }
+						if ('data' in attributes) { scope.hasData = (attributes.data === 'true'); }
+						if ('width' in attributes) { scope.width = attributes.width; }
+						if ('height' in attributes) { scope.height = attributes.height; }
+						if ('colors' in attributes) { scope.colors = attributes.colors.split(','); }
+
+						var chartData = ChartDataService.parse(clone);
+						for (var property in chartData) { scope[property] = chartData[property]; }
+					});
+				};
+			}
+		};
+	}
+
+	angular.module('linechart', ['chart'])
+		.controller('LineChartCtrl', LineChartCtrl)
+		.directive('linechart', LineChartDirective);
+
+})(angular);
 ;angular.module("charts").run(["$templateCache", function($templateCache) {
 
   $templateCache.put("components/bar-chart/bar-chart.html",
     "<div class=\"bar-chart\">\n" +
-    "\t<div class=\"bar-chart--chart\" style=\"padding-top: 50%;\">\n" +
-    "\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"100%\" height=\"100%\" preserveAspectRatio=\"none\" viewBox=\"0 0 1 1\">\n" +
+    "\t<div class=\"bar-chart--chart\">\n" +
+    "\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" ng-attr-width=\"{{ width }}\" ng-attr-height=\"{{ height }}\">\n" +
     "\t\t\t<style>\n" +
-    "\t\t\t\t.bar:hover {\n" +
+    "\t\t\t\t.bar rect:hover {\n" +
     "\t\t\t\t\topacity: 0.8;\n" +
     "\t\t\t\t\tcursor: pointer;\n" +
     "\t\t\t\t}\n" +
     "\t\t\t</style>\n" +
-    "\t\t\t<g transform=\"scale(1, -1) translate(0, -1)\">\n" +
+    "\t\t\t<g class=\"data\" transform=\"scale(1, -1) translate(0, -{{ height }})\">\n" +
     "\t\t\t\t<g ng-repeat=\"series in data\" class=\"bar\">\n" +
-    "\t\t\t\t\t<title>{{ series.name }}: {{ sum(series.values) }}</title>\n" +
-    "\t\t\t\t\t<rect ng-repeat=\"value in series.values\" ng-attr-x=\"{{ ($parent.$index + 0.125) / data.length }}\" ng-attr-y=\"{{ sum(series.values, $index) / getMaxValue() }}\" ng-attr-width=\"{{ 0.75 / data.length }}\" ng-attr-height=\"{{ value.number / getMaxValue() }}\" fill=\"{{ colors[$index] }}\">\n" +
+    "\t\t\t\t\t<rect ng-repeat=\"value in series.values\" ng-attr-x=\"{{ width * ($parent.$index + 0.125) / data.length }}\" ng-attr-y=\"{{ (height - 10) * sum(series.values, $index) / getMaxValue() }}\" ng-attr-width=\"{{ width * 0.75 / data.length }}\" ng-attr-height=\"{{ (height - 10) * value.number / getMaxValue() }}\" fill=\"{{ colors[$index] }}\">\n" +
     "\t\t\t\t\t\t<animateTransform attributeName=\"transform\" attributeType=\"XML\" type=\"scale\" from=\"0\" to=\"0\" dur=\"{{ $parent.$index * 100 }}ms\" fill=\"freeze\"/>\n" +
     "\t\t\t\t\t\t<animateTransform attributeName=\"transform\" attributeType=\"XML\" type=\"scale\" from=\"1,0\" to=\"1,1\" begin=\"{{ $parent.$index * 100 }}ms\" dur=\"300ms\" fill=\"freeze\"/>\n" +
+    "\t\t\t\t\t\t<title>{{ series.name }} - {{ columnNames[$index] }}: {{ value.number }}</title>\n" +
     "\t\t\t\t\t</rect>\n" +
     "\t\t\t\t</g>\n" +
+    "\t\t\t</g>\n" +
+    "\t\t\t<g class=\"axes\">\n" +
+    "\t\t\t\t<line class=\"x-axis\" x1=\"0\" y1=\"0\" x2=\"0\" ng-attr-y2=\"{{ height }}\" stroke=\"#666666\" stroke-width=\"1\" shape-rendering=\"crispEdges\"/>\n" +
+    "\t\t\t\t<line class=\"y-axis\" x1=\"0\" ng-attr-y1=\"{{ height - 1 }}\" ng-attr-x2=\"{{ width }}\" ng-attr-y2=\"{{ height - 1 }}\" stroke=\"#666666\" stroke-width=\"1\" shape-rendering=\"crispEdges\"/>\n" +
     "\t\t\t</g>\n" +
     "\t\t</svg>\n" +
     "\t</div>\n" +
@@ -294,6 +378,50 @@
     "\t\t\t</tr>\n" +
     "\t\t</tbody>\n" +
     "\t</table>\n" +
+    "</div>\n"
+  );
+
+  $templateCache.put("components/line-chart/line-chart.html",
+    "<div class=\"line-chart\">\n" +
+    "\t<div class=\"line-chart--chart\">\n" +
+    "\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" ng-attr-width=\"{{ width }}\" ng-attr-height=\"{{ height }}\">\n" +
+    "\t\t\t<style>\n" +
+    "\t\t\t\t.line:hover {\n" +
+    "\t\t\t\t\topacity: 0.8;\n" +
+    "\t\t\t\t\tcursor: pointer;\n" +
+    "\t\t\t\t}\n" +
+    "\t\t\t\t.point:hover {\n" +
+    "\t\t\t\t\topacity: 0.8;\n" +
+    "\t\t\t\t\tcursor: pointer;\n" +
+    "\t\t\t\t}\n" +
+    "\t\t\t</style>\n" +
+    "\t\t\t<g class=\"data\" transform=\"scale(1, -1) translate(0, -{{ height }})\">\n" +
+    "\t\t\t\t<mask id=\"mask\">\n" +
+    "\t\t\t\t\t<rect width=\"{{ width }}\" height=\"{{ height }}\" fill=\"white\">\n" +
+    "\t\t\t\t\t\t<animate attributeName=\"width\" from=\"0\" to=\"{{ width }}\" dur=\"1s\"/>\n" +
+    "\t\t\t\t\t</rect>\n" +
+    "\t\t\t\t</mask>\n" +
+    "\t\t\t\t<g ng-repeat=\"series in data\" class=\"series\">\n" +
+    "\t\t\t\t\t<g class=\"line\" mask=\"url(#mask)\">\n" +
+    "\t\t\t\t\t\t<line ng-repeat=\"value in series.values | limitTo:series.values.length - 1\" ng-attr-x1=\"{{ width * ($index + 0.5) / series.values.length }}\" ng-attr-y1=\"{{ (height - 10) * value.number / getMaxValue() }}\" ng-attr-x2=\"{{ width * ($index + 1.5) / series.values.length }}\" ng-attr-y2=\"{{ (height - 10) * series.values[$index + 1].number / getMaxValue() }}\" stroke=\"{{ colors[$parent.$index] }}\" stroke-width=\"4\"/>\n" +
+    "\t\t\t\t\t\t<title>{{ series.name }}</title>\n" +
+    "\t\t\t\t\t</g>\n" +
+    "\t\t\t\t\t<circle ng-repeat=\"value in series.values\" class=\"point\" ng-attr-cx=\"{{ width * ($index + 0.5) / series.values.length }}\" ng-attr-cy=\"{{ (height - 10) * value.number / getMaxValue() }}\" r=\"4\" fill=\"white\" stroke=\"{{ colors[$parent.$index] }}\" stroke-width=\"3\">\n" +
+    "\t\t\t\t\t\t<animate attributeName=\"r\" from=\"0\" to=\"4\" dur=\"{{ ($index + 1) / series.values.length * 1000 }}ms\"/>\n" +
+    "\t\t\t\t\t\t<title>{{ series.name }} - {{ columnNames[$index] }}: {{ value.number }}</title>\n" +
+    "\t\t\t\t\t</circle>\n" +
+    "\t\t\t\t</g>\n" +
+    "\t\t\t</g>\n" +
+    "\t\t\t<g class=\"axes\">\n" +
+    "\t\t\t\t<line class=\"x-axis\" x1=\"0\" y1=\"0\" x2=\"0\" ng-attr-y2=\"{{ height }}\" stroke=\"#666666\" stroke-width=\"1\" shape-rendering=\"crispEdges\"/>\n" +
+    "\t\t\t\t<line class=\"y-axis\" x1=\"0\" ng-attr-y1=\"{{ height - 1 }}\" ng-attr-x2=\"{{ width }}\" ng-attr-y2=\"{{ height - 1 }}\" stroke=\"#666666\" stroke-width=\"1\" shape-rendering=\"crispEdges\"/>\n" +
+    "\t\t\t</g>\n" +
+    "\t\t</svg>\n" +
+    "\t</div>\n" +
+    "\t<h3 class=\"line-chart--title\">{{ title }}</h3>\n" +
+    "\t<div class=\"line-chart--data\" ng-show=\"hasData\">\n" +
+    "\t\t<chart/>\n" +
+    "\t</div>\n" +
     "</div>\n"
   );
 

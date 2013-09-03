@@ -44,17 +44,30 @@
 
 /* line 11, ../../src/components/bar-chart/bar-chart.scss */
 .bar-chart--chart {
-  position: relative;
-  margin: 10px;
-  border-left: 1px solid #666666;
-  border-bottom: 1px solid #666666;
+  margin: 10px 0;
 }
 
-/* line 18, ../../src/components/bar-chart/bar-chart.scss */
+/* line 15, ../../src/components/bar-chart/bar-chart.scss */
 .bar-chart--chart svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  display: block;
+}
+
+/* line 2, ../../src/components/line-chart/line-chart.scss */
+.line-chart .chart--title {
+  display: none;
+}
+
+/* line 7, ../../src/components/line-chart/line-chart.scss */
+.line-chart--title {
+  text-align: center;
+}
+
+/* line 11, ../../src/components/line-chart/line-chart.scss */
+.line-chart--chart {
+  margin: 10px 0;
+}
+
+/* line 15, ../../src/components/line-chart/line-chart.scss */
+.line-chart--chart svg {
+  display: block;
 }
